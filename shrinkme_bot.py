@@ -8,7 +8,7 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 SHRINKME_TOKEN = os.getenv("SHRINKME_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-URL regex
+# URL regex
 
 URL_PATTERN = r"(https?://[^\s]+)"
 
