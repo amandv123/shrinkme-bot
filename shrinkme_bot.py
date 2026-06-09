@@ -21,7 +21,7 @@ SHRINKME_TOKEN = os.getenv("SHRINKME_TOKEN")
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# URL regex
+# URL REGEX
 
 URL_PATTERN = r"(https?://[^\s]+)"
 
@@ -91,7 +91,7 @@ bot.reply_to(message, welcome_text)
 
 # =========================
 
-# MAIN HANDLER
+# MAIN MESSAGE HANDLER
 
 # =========================
 
