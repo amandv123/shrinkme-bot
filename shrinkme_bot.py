@@ -3,9 +3,8 @@ import requests
 import re
 import time
 
-BOT_TOKEN = "8230266389:AAGFZpNvHoQwurRoMU3BbH3CXV1hIUv2cwo"
-SHRINKME_TOKEN = "9391bc42128173732b1f34a6e69615d5425e2507"
-
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+SHRINKME_TOKEN = os.getenv("SHRINKME_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN)
 
 URL regex
