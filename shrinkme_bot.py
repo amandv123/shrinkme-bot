@@ -2,6 +2,7 @@ import telebot
 import requests
 import re
 import time
+import os
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 SHRINKME_TOKEN = os.getenv("SHRINKME_TOKEN")
