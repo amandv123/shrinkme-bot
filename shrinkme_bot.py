@@ -20,7 +20,7 @@ bot = telebot.TeleBot(BOT_TOKEN)
 URL_PATTERN = r"(https?://[^\s]+)"
 
 # =========================
-# SHORTENER
+# SHORTENER FUNCTION
 # =========================
 
 def shorten_url(url):
@@ -31,6 +31,7 @@ def shorten_url(url):
             f"https://shrinkme.io/api"
             f"?api={SHRINKME_TOKEN}"
             f"&url={url}"
+            f"&format=text"
         )
 
         response = requests.get(
@@ -38,11 +39,11 @@ def shorten_url(url):
             timeout=20
         )
 
-        data = response.json()
+        short_url = response.text.strip()
 
-        if data.get("status") == "success":
+        if short_url.startswith("http"):
 
-            return data.get("shortenedUrl")
+            return short_url
 
         return url
 
@@ -70,7 +71,7 @@ def start_message(message):
     bot.reply_to(message, welcome_text)
 
 # =========================
-# MAIN HANDLER
+# MAIN MESSAGE HANDLER
 # =========================
 
 @bot.message_handler(func=lambda message: True)
