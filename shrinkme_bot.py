@@ -1,120 +1,173 @@
 import telebot
 import requests
 import re
-import time
+import json
 import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-SHRINKME_TOKEN = os.getenv("SHRINKME_TOKEN")
+BOT_TOKEN = "8230266389:AAGFZpNvHoQwurRoMU3BbH3CXV1hIUv2cwo"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 
 URL_PATTERN = r"(https?://[^\s]+)"
 
-def shorten_url(url):
+DB_FILE = "users.json"
 
-    api_url = "https://shrinkme.io/api"
+Load users
 
-    params = {
-        "api": SHRINKME_TOKEN,
-        "url": url
-    }
+def load_users():
+if not os.path.exists(DB_FILE):
+return {}
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+with open(DB_FILE, "r") as f:
+    return json.load(f)
 
-    try:
+Save users
 
-        response = requests.get(
-            api_url,
-            params=params,
-            headers=headers,
-            timeout=20
-        )
+def save_users(data):
+with open(DB_FILE, "w") as f:
+json.dump(data, f, indent=4)
 
-        data = response.json()
+Shorten URL
 
-        if data.get("status") == "success":
-            return data.get("shortenedUrl")
+def shorten_url(api_token, url):
 
-        return url
+api_url = "https://shrinkme.io/api"
 
-    except Exception as e:
+params = {
+    "api": api_token,
+    "url": url
+}
 
-        print(f"[ERROR] {e}")
+try:
 
-        return url
-
-@bot.message_handler(commands=['start'])
-def start_message(message):
-
-    welcome_text = (
-        "🤖 Professional Smart Shortener Bot\n\n"
-        "✅ Multiple links supported\n"
-        "✅ Original formatting preserved\n"
-        "✅ Smart URL replacement\n\n"
-        "🚀 Powered by ShrinkMe"
+    response = requests.get(
+        api_url,
+        params=params,
+        timeout=20
     )
 
-    bot.reply_to(message, welcome_text)
+    data = response.json()
+
+    if data.get("status") == "success":
+        return data.get("shortenedUrl")
+
+    return None
+
+except Exception as e:
+
+    print(f"[ERROR] {e}")
+
+    return None
+
+Start command
+
+@bot.message_handler(commands=['start'])
+def start(message):
+
+welcome_text = (
+    "🤖 Professional Multi User Shortener Bot\n\n"
+    "📌 First setup your API token.\n\n"
+    "Use command:\n"
+    "/setapi"
+)
+
+bot.reply_to(message, welcome_text)
+
+Set API Command
+
+@bot.message_handler(commands=['setapi'])
+def set_api(message):
+
+msg = bot.reply_to(
+    message,
+    "🔑 Send your ShrinkMe API Token"
+)
+
+bot.register_next_step_handler(
+    msg,
+    save_api_token
+)
+
+Save API Token
+
+def save_api_token(message):
+
+user_id = str(message.from_user.id)
+
+api_token = message.text.strip()
+
+users = load_users()
+
+users[user_id] = {
+    "api_token": api_token
+}
+
+save_users(users)
+
+bot.reply_to(
+    message,
+    "✅ API Token Saved Successfully!\n\nNow send any links."
+)
+
+Handle Messages
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
 
-    text = message.text
+user_id = str(message.from_user.id)
 
-    urls = re.findall(URL_PATTERN, text)
+users = load_users()
 
-    if not urls:
+if user_id not in users:
 
-        bot.reply_to(
-            message,
-            "❌ No valid links found."
-        )
+    bot.reply_to(
+        message,
+        "❌ First set your API token.\nUse /setapi"
+    )
 
-        return
+    return
 
-    updated_text = text
+api_token = users[user_id]["api_token"]
 
-    success_count = 0
+text = message.text
 
-    for url in urls:
+urls = re.findall(URL_PATTERN, text)
 
-        short_url = shorten_url(url)
+if not urls:
 
-        if short_url != url:
-            success_count += 1
+    bot.reply_to(
+        message,
+        "❌ No valid links found."
+    )
+
+    return
+
+updated_text = text
+
+success_count = 0
+
+for url in urls:
+
+    short_url = shorten_url(api_token, url)
+
+    if short_url:
+
+        success_count += 1
 
         updated_text = updated_text.replace(
             url,
             short_url
         )
 
-    user_name = message.from_user.first_name
+print(
+    f"[USER] {message.from_user.first_name} shortened {success_count} links"
+)
 
-    print(
-        f"[USER] {user_name} shortened {success_count} links"
-    )
+bot.reply_to(
+    message,
+    updated_text
+)
 
-    bot.reply_to(
-        message,
-        updated_text
-    )
+print("🤖 Professional Multi User Bot Running...")
 
-print("🤖 Professional Smart Bot Running On Render...")
-
-while True:
-
-    try:
-
-        bot.infinity_polling(
-            timeout=30,
-            long_polling_timeout=30
-        )
-
-    except Exception as e:
-
-        print("Restarting polling...", e)
-
-        time.sleep(5)
+bot.infinity_polling()
