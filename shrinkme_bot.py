@@ -12,7 +12,7 @@ URL_PATTERN = r"(https?://[^\s]+)"
 
 DB_FILE = "users.json"
 
-Load users
+# Load users
 
 def load_users():
 if not os.path.exists(DB_FILE):
@@ -21,13 +21,13 @@ return {}
 with open(DB_FILE, "r") as f:
     return json.load(f)
 
-Save users
+# Save users
 
 def save_users(data):
 with open(DB_FILE, "w") as f:
 json.dump(data, f, indent=4)
 
-Shorten URL
+# Shorten URL
 
 def shorten_url(api_token, url):
 
@@ -59,7 +59,7 @@ except Exception as e:
 
     return None
 
-Start command
+# Start command
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -73,7 +73,7 @@ welcome_text = (
 
 bot.reply_to(message, welcome_text)
 
-Set API Command
+# Set API Command
 
 @bot.message_handler(commands=['setapi'])
 def set_api(message):
@@ -88,7 +88,7 @@ bot.register_next_step_handler(
     save_api_token
 )
 
-Save API Token
+# Save API Token
 
 def save_api_token(message):
 
@@ -109,7 +109,7 @@ bot.reply_to(
     "✅ API Token Saved Successfully!\n\nNow send any links."
 )
 
-Handle Messages
+# Handle Messages
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
