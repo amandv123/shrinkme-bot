@@ -8,7 +8,6 @@ import time
 # =========================
 
 BOT_TOKEN = "8230266389:AAGXiAaVakXuiPqrAuN1oCinFYYqaN92KPk"
-
 SHRINKME_TOKEN = "9391bc42128173732b1f34a6e69615d5425e2507"
 
 # =========================
@@ -42,7 +41,6 @@ def shorten_url(url):
         short_url = response.text.strip()
 
         if short_url.startswith("http"):
-
             return short_url
 
         return url
